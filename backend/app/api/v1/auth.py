@@ -1,6 +1,8 @@
 from fastapi import APIRouter
 from fastapi import Depends
 from fastapi import HTTPException
+from google.oauth2 import id_token
+from google.auth.transport import requests
 
 from sqlalchemy.orm import Session
 
@@ -23,6 +25,8 @@ from app.repositories.user_repository import (
 from app.dependencies.auth_dependency import (
     get_current_user
 )
+
+from app.schemas.auth_schema import GoogleAuthRequest
 
 router = APIRouter(
     tags=["Authentication"]
@@ -88,3 +92,25 @@ def me(
     )
 ):
     return current_user
+
+@router.post("/google")
+def google_login(request: GoogleAuthRequest, db: Session = Depends(get_db)):
+    try:
+        id_info = id_token.verify_oauth2_token(
+            request.credential,
+            requests.Request(),
+            GOOGLE_CLIENT_ID
+        )
+
+        email = id_info["email"]
+        full_name = id_info.get("name", "")
+
+        repo = UserRepository(db)
+        service = AuthService(repo)
+
+        token = service.login_or_create_google_user(email, full_name)
+
+        return {"access_token": token, "token_type": "bearer"}
+
+    except ValueError:
+        raise HTTPException(status_code=401, detail="Invalid token")

@@ -12,18 +12,32 @@ import {
 
 import { queryClient } from "./lib/react-query";
 
+import { GoogleOAuthProvider } from "@react-oauth/google";
+
 import App from "./App";
 
-ReactDOM.createRoot(
-  document.getElementById("root")!
-).render(
-  <Provider store={store}>
-    <ThemeProvider theme={theme}>
-      <QueryClientProvider
-        client={queryClient}
-      >
-        <App />
-      </QueryClientProvider>
-    </ThemeProvider>
-  </Provider>
+// ReactDOM.createRoot(
+//   document.getElementById("root")!
+// ).render(
+//   <Provider store={store}>
+//     <ThemeProvider theme={theme}>
+//       <QueryClientProvider
+//         client={queryClient}
+//       >
+//         <App />
+//       </QueryClientProvider>
+//     </ThemeProvider>
+//   </Provider>
+// );
+
+ReactDOM.createRoot(document.getElementById("root")!).render(
+  <GoogleOAuthProvider clientId="491874201405-kom1uruvc14ctetefgh33v7pq4eb4grs.apps.googleusercontent.com">
+    <Provider store={store}>
+      <ThemeProvider theme={theme}>
+        <QueryClientProvider client={queryClient}>
+          <App />
+        </QueryClientProvider>
+      </ThemeProvider>
+    </Provider>
+  </GoogleOAuthProvider>
 );
