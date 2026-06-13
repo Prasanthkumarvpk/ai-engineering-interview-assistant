@@ -6,6 +6,9 @@ from app.middleware.error_handler import (
 )
 
 from app.core.config import settings
+from app.db.base import Base
+from app.db.database import engine
+from app import models
 
 
 app = FastAPI(
@@ -22,3 +25,17 @@ app.add_exception_handler(
     Exception,
     global_exception_handler
 )
+
+
+@app.on_event("startup")
+def startup():
+    Base.metadata.create_all(
+        bind=engine
+    )
+
+
+@app.get("/")
+def root():
+    return {
+        "message": "AI Interview Assistant API"
+    }
